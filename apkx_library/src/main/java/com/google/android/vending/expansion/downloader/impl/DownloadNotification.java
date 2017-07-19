@@ -172,6 +172,7 @@ public class DownloadNotification implements IDownloaderClient {
             mActiveDownloadBuilder.setContentTitle(mLabel);
             mActiveDownloadBuilder.setContentInfo(mContext.getString(R.string.time_remaining_notification,
                     Helpers.getTimeRemaining(progress.mTimeRemaining)));
+            mActiveDownloadBuilder.setOngoing(true);
             mCurrentBuilder = mActiveDownloadBuilder;
         }
         mNotificationManager.notify(NOTIFICATION_ID, mCurrentBuilder.build());
