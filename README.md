@@ -1,6 +1,6 @@
 # Client library for the Google Play APK Expansion files.
 
-## Download 
+## Installation 
 
 In your module's `build.gradle` dependencies:
 ```GROOVY
@@ -18,6 +18,17 @@ allprojects {
 }
 ```
 
+## How to use
+
+### Linking obb files
+In order to test the download, your aplication must be published in Google Play (alpha or beta release works). Before starting to test the download, make sure that you have assosiated at least one OBB file with your current application's `versionCode`. Versions that have no assosiated expansion files can't start the donwload. You can assosiate the OBB files when you upload the apk file to the Play Console. 
+
+Check the [APK Expansion Files documentation](https://developer.android.com/google/play/expansion-files.html#Overview) for more information about OBB files.
+
+### Configuring Play Licensing
+To start the downloading process you should first obrain a valid licensing response. Make sure that you have correctly set your publisher key. For more info about publisher account check the [documentation](https://developer.android.com/google/play/licensing/setting-up.html#account).
+
+You can also set up your testing environment to always receive a valid response (see the [licensing documentation](https://developer.android.com/google/play/licensing/setting-up.html#test-env) for more info).
 
 ## Changelog
 Version 4
