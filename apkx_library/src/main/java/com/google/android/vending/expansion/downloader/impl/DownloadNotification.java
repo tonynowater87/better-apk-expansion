@@ -110,6 +110,8 @@ public class DownloadNotification implements IDownloaderClient {
                     break;
 
                 case IDownloaderClient.STATE_COMPLETED:
+                    // show notification without progress
+                    mCurrentBuilder = mBuilder;
                 case IDownloaderClient.STATE_PAUSED_BY_REQUEST:
                     iconResource = android.R.drawable.stat_sys_download_done;
                     stringDownloadID = Helpers.getDownloaderStringResourceIDFromState(newState);
