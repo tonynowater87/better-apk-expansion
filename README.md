@@ -1,7 +1,25 @@
-Client library for the Google Market APK Expansion files.
+# Client library for the Google Play APK Expansion files.
 
-Changelog
----------
+## Download 
+
+In your module's `build.gradle` dependencies:
+```GROOVY
+compile 'com.github.bolein:better-apk-expansion:4.0.0'
+```
+
+In your root project's `build.gradle`:
+```GROOVY
+allprojects {
+// ...
+    repositories {
+        // ...
+        maven { url "https://jitpack.io" } // add this line
+    }
+}
+```
+
+
+## Changelog
 Version 4
 * Updated for Marshmallow
    - No longer uses Apache HTTP
@@ -22,18 +40,16 @@ Version 2
 * Minor formatting changes
 * Additional comments and edits to this file
 
-Packages
---------
+## Packages
 
-downloader_library
+### downloader_library
 A library that works with the google_market_licensing library to download APK Expansion files in a background service.  This library depends on the licensing library, and must be built as a library project.
-zip_file
+### zip_file 
 A library that uses multiple zip files as a virtual read-only filesystem with hooks to support APK Expansion lies. This also must be built as an Android library project.
-downloader_sample
+### downloader_sample
 A sample application that assumes that zip format files have been uploaded as the main/patch file(s) on Android Market.  It downloads these files and then validates that the CRC's for every entry in the zip match.  This application depends on the downloader_library and the zip_file library. Because of dependency issues involving multiple libraries, you may have to do a clean build after creating each project.
 
-IMPORTANT THINGS TO KNOW
-------------------------
+## IMPORTANT THINGS TO KNOW
 
 1) Do not plan to extract the contents of an APK Expansion file.  They are intended to be used in-place.  By not compressing audio and video files and storing them in a Zip file they can be played from within an expansion file.
 2) See com.google.android.vending.expansion.downloader/Constants.java to turn on verbose logging in the library.  Please turn it off when you publish
@@ -42,6 +58,6 @@ IMPORTANT THINGS TO KNOW
 
 For more information, see the documentation at http://developer.android.com/guide/market/expansion-files.html
 
-This library requires the Android License Verification Library.
+This library depends on the [Android License Verification Library](https://github.com/bolein/better-licensing).
 
 See the licensing documentation at http://developer.android.com/guide/publishing/licensing.html
