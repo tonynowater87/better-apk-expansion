@@ -19,7 +19,9 @@ import com.google.android.vending.expansion.downloader.IDownloaderService;
  * <b>Note:</b> You should preferably register the receiver through the
  * methods {@link #register(Context)} and {@link #unregister(Context)}.
  * The broadcast is not sticky, so client should use
- * {@link IDownloaderService#requestDownloadStatus()}
+ * {@link IDownloaderService#requestDownloadStatus()} to receive the
+ * current download status immediately (see {@link DownloaderProxy}).
+ *
  *
  * @since 5.0.0
  */

@@ -9,13 +9,13 @@ was first published by Google.
 We believe that the original APK Expansion Library was slightly over-engineered. 
 We propose a new simplified API for the Downloader Library.
 
-The new API does not require to implement any additional services or broadcast receivers.
+The new API does not require the user to implement any additional services or broadcast receivers.
 It is still based on the original `DownloaderService`, however the communication with the
-service is more transparent.
+service made more transparent.
 
 * Service is started directly through the static methods.
 * The service now signals download events through the local 
-broadcast, and does not require binding to service for the most use cases. To receive
+broadcast, and does not require service binding for the most use cases. To receive
 download events user just have to extend `BroadcastDownloaderClient`. 
 * User does not have to implement an alarm receiver for signals from the service watch dogs.
 
@@ -67,9 +67,9 @@ Starting the download using the Downloader Library requires the following proced
     
     The behavior for `LVL_CHECK_REQUIRED` and `DOWNLOAD_REQUIRED` are essentially the same and you normally don't need to be concerned about them. In your main activity that calls `startDownloadServiceIfRequired()`, you can simply check whether or not the response is `NO_DOWNLOAD_REQUIRED`. If the response is anything other than `NO_DOWNLOAD_REQUIRED`, the Downloader Library begins the download and you should update your activity UI to display the download progress (see the next step). If the response is `NO_DOWNLOAD_REQUIRED`, then the files are available and your application can start.
     
-    Notice that method may return `NO_DOWNLOAD_REQUIRED` if your APK has no expansion files associated with it (see [Linking OBB files](#linking-obb-files)).
+    Notice that the method may return `NO_DOWNLOAD_REQUIRED` if your APK has no expansion files associated with it (see [Linking OBB files](#linking-obb-files)).
     
-    For example
+    For example:
     ```JAVA
     // You must use the public key belonging to your publisher account
     public static final String BASE64_PUBLIC_KEY = "YourLVLKey";   
@@ -116,12 +116,16 @@ progress updates if it is registered in the same process as the `DownloaderServi
 public class SampleDownloaderActivity extends AppCompatActivity {
     private final DownloaderClient mClient = new DownloaderClient(this);
     
-    @Override protected void onStart() {
+    // ...
+    
+    @Override 
+    protected void onStart() {
         super.onStart();
         mClient.register(this);
     }
 
-    @Override protected void onStop() {
+    @Override 
+    protected void onStop() {
         mClient.unregister(this);
         super.onStop();
     }
@@ -130,7 +134,8 @@ public class SampleDownloaderActivity extends AppCompatActivity {
     
     class DownloaderClient extends BroadcastDownloaderClient {
     
-        @Override public void onDownloadStateChanged(int newState) {
+        @Override 
+        public void onDownloadStateChanged(int newState) {
             if (newState == STATE_COMPLETED) {
                 // downloaded successfully...
             } else if (newState >= 15) {
@@ -140,7 +145,8 @@ public class SampleDownloaderActivity extends AppCompatActivity {
             } 
         }
         
-        @Override public void onDownloadProgress(DownloadProgressInfo progress) {
+        @Override 
+        public void onDownloadProgress(DownloadProgressInfo progress) {
             if (progress.mOverallTotal > 0) {
                 // receive the download progress
                 // you can then display the progress in your activity
@@ -154,11 +160,12 @@ public class SampleDownloaderActivity extends AppCompatActivity {
 }
 ```
 
-#### Communicating back to service
+#### Communicating back to the service
 With the `IDownloaderService` interface, you can send commands to the downloader service, such as to pause and resume the download (`requestPauseDownload()` and `requestContinueDownload()`).
-To get an instance of the `IDownloaderService`, you can use the `DownloaderProxy` class.
+To access an instance of the `IDownloaderService`, you can use the `DownloaderProxy` class.
 
-To use the proxy, you should first establish a binding connection with the service by calling `connect()` method.
+To use the proxy, you should first establish a binding connection with the service by calling `connect()` method. This
+method will bind the proxy to the service and send further commands through the `Messenger`.
 
 For example:
 
@@ -167,23 +174,24 @@ For example:
 
 private final DownloaderProxy mDownloaderProxy = new DownloaderProxy(this);
 
-@Override protected void onCreate(Bundle savedInstanceState) {
+@Override 
+protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     // ...
     
-    // Establish the connection to service
+    // Establish a connection to the service
     mDownloaderProxy.connect();
     
     // You can now use the proxy to issue commands to the 
     // DownloaderService such as `requestPauseDownload()`
     // and `requestContinueDownload()`
     
-    // Request current download status to be delivered to 
-    // the downloader client
+    // Request current download status for the downloader client
     mDownloaderProxy.requestDownloadStatus();
 }
 
-@Override protected void onDestroy() {
+@Override 
+protected void onDestroy() {
     super.onDestroy();
     // Don't forget to unbind the proxy when you don't 
     // need it anymore
