@@ -27,7 +27,7 @@ import com.google.android.vending.expansion.downloader.Helpers;
 /**
  * This class wraps NotificationCompat to give us similar progress functionality on Donut-Honeycomb.
  */
-public class V4CustomNotificationBuilder extends NotificationCompat.Builder {
+class V4CustomNotificationBuilder extends NotificationCompat.Builder {
 
     public V4CustomNotificationBuilder(Context context) {
         super(context);

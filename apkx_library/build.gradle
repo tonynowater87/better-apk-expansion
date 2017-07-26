@@ -23,6 +23,6 @@ android {
 
 dependencies {
     compile 'com.github.bolein:better-licensing:1.5.0'
-    compile "com.android.support:support-compat:25.3.1"
+    compile 'com.android.support:support-v4:25.3.1'
     compile fileTree(dir: 'libs', include: ['*.jar'])
 }

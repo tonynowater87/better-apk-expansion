@@ -27,7 +27,7 @@ import android.util.Log;
  * in shouldStop(). Since the goal of this service is to handle a single kind of
  * intent, it does not queue up batches of intents of the same type.
  */
-public abstract class CustomIntentService extends Service {
+abstract class CustomIntentService extends Service {
     private String mName;
     private boolean mRedelivery;
     private volatile ServiceHandler mServiceHandler;
