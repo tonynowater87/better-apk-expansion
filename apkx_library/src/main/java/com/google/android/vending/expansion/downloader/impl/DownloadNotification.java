@@ -20,11 +20,9 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.os.Build;
-import android.os.Messenger;
 import android.support.v4.app.NotificationCompat;
 import com.android.vending.expansion.downloader.R;
 import com.google.android.vending.expansion.downloader.DownloadProgressInfo;
-import com.google.android.vending.expansion.downloader.DownloaderClientMarshaller;
 import com.google.android.vending.expansion.downloader.Helpers;
 import com.google.android.vending.expansion.downloader.IDownloaderClient;
 
@@ -39,14 +37,14 @@ import com.google.android.vending.expansion.downloader.IDownloaderClient;
  * The application interface for the downloader also needs to understand and
  * handle these transient states.
  */
-public class DownloadNotification implements IDownloaderClient {
+class DownloadNotification {
 
     private int mState;
     private final Context mContext;
     private final NotificationManager mNotificationManager;
-    private CharSequence mCurrentTitle;
+    private final IDownloaderClient mClientProxy;
 
-    private IDownloaderClient mClientProxy;
+    private CharSequence mCurrentTitle;
     private NotificationCompat.Builder mActiveDownloadBuilder;
     private NotificationCompat.Builder mBuilder;
     private NotificationCompat.Builder mCurrentBuilder;
@@ -57,6 +55,37 @@ public class DownloadNotification implements IDownloaderClient {
 
     static final String LOGTAG = "DownloadNotification";
     static final int NOTIFICATION_ID = LOGTAG.hashCode();
+
+    /**
+     * Constructor
+     *
+     * @param ctx The context to use to obtain access to the Notification
+     *            Service
+     */
+    DownloadNotification(Context ctx, CharSequence applicationLabel) {
+        mState = -1;
+        mContext = ctx;
+        mLabel = applicationLabel;
+        mNotificationManager = (NotificationManager)
+                mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+        mClientProxy = new ClientProxy(ctx);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+            mActiveDownloadBuilder = new V4CustomNotificationBuilder(ctx);
+        } else {
+            mActiveDownloadBuilder = new NotificationCompat.Builder(ctx);
+        }
+        mBuilder = new NotificationCompat.Builder(ctx);
+
+        // Set Notification category and priorities to something that makes sense for a long
+        // lived background task.
+        mActiveDownloadBuilder.setPriority(NotificationCompat.PRIORITY_LOW);
+        mActiveDownloadBuilder.setCategory(NotificationCompat.CATEGORY_PROGRESS);
+
+        mBuilder.setPriority(NotificationCompat.PRIORITY_LOW);
+        mBuilder.setCategory(NotificationCompat.CATEGORY_PROGRESS);
+
+        mCurrentBuilder = mBuilder;
+    }
 
     public PendingIntent getClientIntent() {
         return mContentIntent;
@@ -69,16 +98,11 @@ public class DownloadNotification implements IDownloaderClient {
     }
 
     public void resendState() {
-        if (null != mClientProxy) {
-            mClientProxy.onDownloadStateChanged(mState);
-        }
+        mClientProxy.onDownloadStateChanged(mState);
     }
 
-    @Override
-    public void onDownloadStateChanged(int newState) {
-        if (null != mClientProxy) {
-            mClientProxy.onDownloadStateChanged(newState);
-        }
+    void onDownloadStateChanged(int newState) {
+        mClientProxy.onDownloadStateChanged(newState);
         if (newState != mState) {
             mState = newState;
             if (newState == IDownloaderClient.STATE_IDLE || null == mContentIntent) {
@@ -151,12 +175,9 @@ public class DownloadNotification implements IDownloaderClient {
         }
     }
 
-    @Override
-    public void onDownloadProgress(DownloadProgressInfo progress) {
+    void onDownloadProgress(DownloadProgressInfo progress) {
         mProgressInfo = progress;
-        if (null != mClientProxy) {
-            mClientProxy.onDownloadProgress(progress);
-        }
+        mClientProxy.onDownloadProgress(progress);
         if (progress.mOverallTotal <= 0) {
             // we just show the text
             mBuilder.setTicker(mCurrentTitle);
@@ -177,55 +198,4 @@ public class DownloadNotification implements IDownloaderClient {
         }
         mNotificationManager.notify(NOTIFICATION_ID, mCurrentBuilder.build());
     }
-
-    /**
-     * Called in response to onClientUpdated. Creates a new proxy and notifies
-     * it of the current state.
-     *
-     * @param msg the client Messenger to notify
-     */
-    public void setMessenger(Messenger msg) {
-        mClientProxy = DownloaderClientMarshaller.CreateProxy(msg);
-        if (null != mProgressInfo) {
-            mClientProxy.onDownloadProgress(mProgressInfo);
-        }
-        if (mState != -1) {
-            mClientProxy.onDownloadStateChanged(mState);
-        }
-    }
-
-    /**
-     * Constructor
-     *
-     * @param ctx The context to use to obtain access to the Notification
-     *            Service
-     */
-    DownloadNotification(Context ctx, CharSequence applicationLabel) {
-        mState = -1;
-        mContext = ctx;
-        mLabel = applicationLabel;
-        mNotificationManager = (NotificationManager)
-                mContext.getSystemService(Context.NOTIFICATION_SERVICE);
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-            mActiveDownloadBuilder = new V4CustomNotificationBuilder(ctx);
-        } else {
-            mActiveDownloadBuilder = new NotificationCompat.Builder(ctx);
-        }
-        mBuilder = new NotificationCompat.Builder(ctx);
-
-        // Set Notification category and priorities to something that makes sense for a long
-        // lived background task.
-        mActiveDownloadBuilder.setPriority(NotificationCompat.PRIORITY_LOW);
-        mActiveDownloadBuilder.setCategory(NotificationCompat.CATEGORY_PROGRESS);
-
-        mBuilder.setPriority(NotificationCompat.PRIORITY_LOW);
-        mBuilder.setCategory(NotificationCompat.CATEGORY_PROGRESS);
-
-        mCurrentBuilder = mBuilder;
-    }
-
-    @Override
-    public void onServiceConnected(Messenger m) {
-    }
-
 }

@@ -23,7 +23,7 @@ import com.google.android.vending.expansion.downloader.Helpers;
 /**
  * Representation of information about an individual download from the database.
  */
-public class DownloadInfo {
+class DownloadInfo {
     public String mUri;
     public final int mIndex;
     public final String mFileName;
