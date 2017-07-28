@@ -234,6 +234,10 @@ allprojects {
 }
 ```
 
+### Usage
+
+The complete documentation on the old Downloader Library is available at the Android Developers [website](https://developer.android.com/google/play/expansion-files.html#Overview). 
+
 ## Changelog
 Version 5.0.0
 * Introduced updated API
