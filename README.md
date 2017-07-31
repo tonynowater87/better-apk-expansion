@@ -200,7 +200,7 @@ protected void onDestroy() {
 ```
 
 #### Linking OBB files
-In order to test the download, your application must be published in Google Play (alpha or beta release works). Before starting to test the download, make sure that you have assosiated at least one OBB file with your current application's `versionCode`. Versions that have no assosiated expansion files can't start the donwload. You can assosiate the OBB files when you upload the apk file to the Play Console. 
+In order to test the download, your application must be published in Google Play (alpha or beta release works). Before starting to test the download, make sure that you have associated at least one OBB file with your current application's `versionCode`. Versions that have no associated expansion files can't start the download. You can associate the OBB files when you upload the apk file to the Play Console. 
 
 Check the [APK Expansion Files documentation](https://developer.android.com/google/play/expansion-files.html#Overview) for more information about OBB files.
 
