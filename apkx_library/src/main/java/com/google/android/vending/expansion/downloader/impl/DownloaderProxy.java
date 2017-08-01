@@ -12,24 +12,24 @@ import com.google.android.vending.expansion.downloader.IDownloaderService;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import static com.google.android.vending.expansion.downloader.impl.ServiceHandler.*;
+import static com.google.android.vending.expansion.downloader.impl
+        .ServiceHandler.*;
 
 /**
  * This class is used by the client to issue commands to the {@link
  * DownloaderService} (such as to pause and resume downloads).
- *
+ * <p>
  * Most importantly, you must first call {@link #connect()} method to
  * establish the connection with the service. All the calls to {@link
  * IDownloaderService} that happen when connection is being
  * established will be queued and delivered when connection is ready.
  */
-public final class DownloaderProxy implements IDownloaderService, ServiceConnection {
-
-    public static final String TAG = DownloaderProxy.class.getSimpleName();
+public final class DownloaderProxy implements IDownloaderService,
+        ServiceConnection {
 
     private final Context mContext;
     private Messenger mMessenger;
-    private boolean mConnectedOrConnecting;
+    private boolean mConnected;
     private boolean connectCalled;
     private final Queue<Message> mMessages = new LinkedList<>();
 
@@ -37,15 +37,17 @@ public final class DownloaderProxy implements IDownloaderService, ServiceConnect
         this.mContext = context;
     }
 
-    @Override public final void onServiceConnected(ComponentName name, IBinder service) {
+    @Override
+    public final void onServiceConnected(ComponentName name, IBinder service) {
         mMessenger = new Messenger(service);
-        mConnectedOrConnecting = true;
+        mConnected = true;
         drainMessages();
     }
 
-    @Override public final void onServiceDisconnected(ComponentName name) {
+    @Override
+    public final void onServiceDisconnected(ComponentName name) {
         mMessenger = null;
-        mConnectedOrConnecting = false;
+        mConnected = false;
     }
 
     @Override
@@ -81,7 +83,7 @@ public final class DownloaderProxy implements IDownloaderService, ServiceConnect
                 mMessenger.send(mMessages.peek());
                 mMessages.remove();
             } catch (RemoteException e) {
-                Log.e(TAG, "send: ", e);
+                Log.e(Constants.TAG, "send: ", e);
             }
         }
     }
@@ -97,27 +99,26 @@ public final class DownloaderProxy implements IDownloaderService, ServiceConnect
 
         mMessages.add(m);
 
-        if (mConnectedOrConnecting) {
+        if (mConnected) {
             drainMessages();
-        } else {
-            Log.v(TAG, "send: service not connected. Queuing message");
         }
     }
 
     public void connect() {
-        Intent bindIntent = new Intent(mContext.getApplicationContext(), DownloaderService.class);
-        if (!mContext.getApplicationContext().bindService(bindIntent, this, Context.BIND_DEBUG_UNBIND)) {
-            Log.w(Constants.TAG, "Service not bound. Check Manifest.xml declaration");
+        Intent bindIntent = new Intent(mContext.getApplicationContext(),
+                DownloaderService.class);
+        if (!mContext.getApplicationContext().bindService(bindIntent, this,
+                Context.BIND_DEBUG_UNBIND)) {
+            Log.w(Constants.TAG, "Service not bound. Check Manifest.xml " +
+                    "declaration");
         } else {
             connectCalled = true;
-            mConnectedOrConnecting = true;
         }
     }
 
     public void disconnect() {
-        if (mConnectedOrConnecting) {
+        if (mConnected) {
             mContext.getApplicationContext().unbindService(this);
-            mConnectedOrConnecting = false;
             connectCalled = false;
         }
     }
