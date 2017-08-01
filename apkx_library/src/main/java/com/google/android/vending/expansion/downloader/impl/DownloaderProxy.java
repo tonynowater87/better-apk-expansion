@@ -98,8 +98,9 @@ public final class DownloaderProxy implements IDownloaderService, ServiceConnect
         mMessages.add(m);
 
         if (mConnectedOrConnecting) {
-            Log.v(TAG, "send: service not connected. Queuing message");
             drainMessages();
+        } else {
+            Log.v(TAG, "send: service not connected. Queuing message");
         }
     }
 
