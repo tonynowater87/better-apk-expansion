@@ -24,7 +24,7 @@ download events user just have to extend `BroadcastDownloaderClient`.
 
 In your module's `build.gradle` dependencies:
 ```GROOVY
-compile 'com.github.bolein:better-apk-expansion:5.0.0'
+compile 'com.github.bolein.better-apk-expansion:downloader_library:5.0.2'
 ```
 
 In your root project's `build.gradle`:
@@ -209,6 +209,15 @@ The first step in the download process is to obtain a valid licensing response. 
 
 Note that you can also set up your testing environment to always emit a valid licensing response (see the [licensing documentation](https://developer.android.com/google/play/licensing/setting-up.html#test-env) for more info).
 
+## Zip_file
+The original `zip_file` module is included. 
+
+### Gradle installation 
+
+In your module's `build.gradle` dependencies:
+```GROOVY
+compile 'com.github.bolein.better-apk-expansion:downloader_library:5.0.2'
+```
 
 ## Old API
 
