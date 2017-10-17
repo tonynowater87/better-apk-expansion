@@ -1,1 +1,1 @@
-include ':apkx_library', ':apkx_sample', ':zip_file'
+include ':downloader_library', ':zip_file'
