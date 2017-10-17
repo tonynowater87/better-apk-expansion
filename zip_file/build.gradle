@@ -10,7 +10,12 @@ android {
     defaultConfig {
         minSdkVersion 9
         targetSdkVersion 25
-        consumerProguardFiles 'proguard-rules.pro'
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
     }
 }
 
@@ -36,7 +41,5 @@ artifacts {
 }
 
 dependencies {
-    compile 'com.github.bolein:better-licensing:1.5.0'
-    compile 'com.android.support:support-v4:25.3.1'
     compile fileTree(dir: 'libs', include: ['*.jar'])
 }

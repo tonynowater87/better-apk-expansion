@@ -1,12 +1,7 @@
 
 package com.google.android.vending.expansion.zipfile;
 
-import android.content.ContentProvider;
-import android.content.ContentProviderOperation;
-import android.content.ContentProviderResult;
-import android.content.ContentValues;
-import android.content.Context;
-import android.content.OperationApplicationException;
+import android.content.*;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -17,6 +12,11 @@ import android.database.MatrixCursor;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.provider.BaseColumns;
+import com.google.android.vending.expansion.zipfile.ZipResourceFile.ZipEntryRO;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.ArrayList;
 
 /*
  * Copyright (C) 2012 The Android Open Source Project
@@ -33,15 +33,8 @@ import android.provider.BaseColumns;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 //To implement APEZProvider in your application, you'll want to change
 //the AUTHORITY to match what you define in the manifest.
-
-import com.google.android.vending.expansion.zipfile.ZipResourceFile.ZipEntryRO;
-
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.ArrayList;
 
 /**
  * This content provider is an optional part of the library.
