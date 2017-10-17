@@ -216,7 +216,7 @@ The original `zip_file` module is included.
 
 In your module's `build.gradle` dependencies:
 ```GROOVY
-compile 'com.github.bolein.better-apk-expansion:downloader_library:5.0.2'
+compile 'com.github.bolein.better-apk-expansion:zip_file:5.0.2'
 ```
 
 ## Old API
