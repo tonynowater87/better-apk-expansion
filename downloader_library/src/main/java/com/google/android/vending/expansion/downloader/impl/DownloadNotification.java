@@ -199,4 +199,51 @@ class DownloadNotification {
         }
         mNotificationManager.notify(NOTIFICATION_ID, mCurrentBuilder.build());
     }
+
+    /**
+     * Called in response to onClientUpdated. Creates a new proxy and notifies
+     * it of the current state.
+     *
+     * @param msg the client Messenger to notify
+     */
+    public void setMessenger(Messenger msg) {
+        mClientProxy = DownloaderClientMarshaller.CreateProxy(msg);
+        if (null != mProgressInfo) {
+            mClientProxy.onDownloadProgress(mProgressInfo);
+        }
+        if (mState != -1) {
+            mClientProxy.onDownloadStateChanged(mState);
+        }
+    }
+
+    /**
+     * Constructor
+     *
+     * @param ctx The context to use to obtain access to the Notification
+     *            Service
+     */
+    DownloadNotification(Context ctx, CharSequence applicationLabel) {
+        mState = -1;
+        mContext = ctx;
+        mLabel = applicationLabel;
+        mNotificationManager = (NotificationManager)
+                mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+        mActiveDownloadBuilder = new NotificationCompat.Builder(ctx);
+        mBuilder = new NotificationCompat.Builder(ctx);
+
+        // Set Notification category and priorities to something that makes sense for a long
+        // lived background task.
+        mActiveDownloadBuilder.setPriority(NotificationCompat.PRIORITY_LOW);
+        mActiveDownloadBuilder.setCategory(NotificationCompat.CATEGORY_PROGRESS);
+
+        mBuilder.setPriority(NotificationCompat.PRIORITY_LOW);
+        mBuilder.setCategory(NotificationCompat.CATEGORY_PROGRESS);
+
+        mCurrentBuilder = mBuilder;
+    }
+
+    @Override
+    public void onServiceConnected(Messenger m) {
+    }
+
 }

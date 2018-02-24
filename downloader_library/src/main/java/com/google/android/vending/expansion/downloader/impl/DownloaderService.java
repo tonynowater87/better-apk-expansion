@@ -557,7 +557,7 @@ public class DownloaderService extends CustomIntentService implements IDownloade
             mConnectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         }
         if (null == mWifiManager) {
-            mWifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+            mWifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         }
         if (mConnectivityManager == null) {
             Log.w(Constants.TAG,
