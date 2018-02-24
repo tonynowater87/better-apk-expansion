@@ -574,6 +574,7 @@ public class DownloaderService extends CustomIntentService implements IDownloade
     public static final int DOWNLOAD_REQUIRED = 2;
 
     public static final String EXTRA_PENDING_INTENT = "EPI";
+    public static final String EXTRA_CHANNEL_ID = "ECI";
     public static final String EXTRA_SALT = "ESALT";
     public static final String EXTRA_PUBLIC_KEY = "EPK";
 
@@ -620,12 +621,15 @@ public class DownloaderService extends CustomIntentService implements IDownloade
      * network connection, even if Market delivers all of the files.
      *
      * @param context
+     * @param channelId The Channel ID to use for download progress
+     *                  notifications on Android O+
      * @param pendingIntent
      * @return true if the app should wait for more guidance from the
      *         downloader, false if the app can continue
      * @throws NameNotFoundException
      */
     public static int startDownloadServiceIfRequired(Context context,
+            String channelId,
             PendingIntent pendingIntent, byte[] salt, String publicKey)
             throws NameNotFoundException {
 
@@ -665,6 +669,7 @@ public class DownloaderService extends CustomIntentService implements IDownloade
             case LVL_CHECK_REQUIRED:
                 Intent downloadIntent = new Intent(context, DownloaderService.class);
                 downloadIntent.putExtra(EXTRA_PENDING_INTENT, pendingIntent);
+                downloadIntent.putExtra(EXTRA_CHANNEL_ID, channelId);
                 downloadIntent.putExtra(EXTRA_SALT, salt);
                 downloadIntent.putExtra(EXTRA_PUBLIC_KEY, publicKey);
                 context.startService(downloadIntent);
@@ -703,11 +708,13 @@ public class DownloaderService extends CustomIntentService implements IDownloade
     private class LVLRunnable implements Runnable {
 
         final Context mContext;
+        private final String mChannelId;
         private final byte[] mSalt;
         private final String mPublicKey;
 
-        LVLRunnable(Context context, byte[] salt, String publicKey) {
+        LVLRunnable(Context context, String channelId, byte[] salt, String publicKey) {
             mContext = context;
+            mChannelId = channelId;
             mSalt = salt;
             mPublicKey = publicKey;
         }
@@ -796,7 +803,7 @@ public class DownloaderService extends CustomIntentService implements IDownloade
                                     mContext.getPackageName(), 0);
                             db.updateMetadata(pi.versionCode, status);
                             Class<? extends DownloaderService> serviceClass = DownloaderService.this.getClass();
-                            switch (startDownloadServiceIfRequired(mContext, mPendingIntent, mSalt, mPublicKey)) {
+                            switch (startDownloadServiceIfRequired(mContext, mChannelId, mPendingIntent, mSalt, mPublicKey)) {
                                 case NO_DOWNLOAD_REQUIRED:
                                     mNotification
                                             .onDownloadStateChanged(IDownloaderClient.STATE_COMPLETED);
@@ -865,10 +872,10 @@ public class DownloaderService extends CustomIntentService implements IDownloade
      *
      * @param context
      */
-    public void updateLVL(final Context context, byte[] salt, String publicKey) {
+    public void updateLVL(final Context context, String channelId, byte[] salt, String publicKey) {
         Context c = context.getApplicationContext();
         Handler h = new Handler(c.getMainLooper());
-        h.post(new LVLRunnable(c, salt, publicKey));
+        h.post(new LVLRunnable(c, channelId, salt, publicKey));
     }
 
     /**
@@ -982,6 +989,7 @@ public class DownloaderService extends CustomIntentService implements IDownloade
 
                 startDownloadServiceIfRequired(
                         context,
+                        intent.getStringExtra(EXTRA_CHANNEL_ID),
                         pendingIntent,
                         intent.getByteArrayExtra(EXTRA_SALT),
                         intent.getStringExtra(EXTRA_PUBLIC_KEY)
@@ -1007,11 +1015,13 @@ public class DownloaderService extends CustomIntentService implements IDownloade
             // and download status when the instance is created
             DownloadsDB db = DownloadsDB.getDB(this);
             final PendingIntent pendingIntent = intent.getParcelableExtra(EXTRA_PENDING_INTENT);
-            byte[] salt = intent.getByteArrayExtra(EXTRA_SALT);
-            String publicKey = intent.getStringExtra(EXTRA_PUBLIC_KEY);
+            final String channelId = intent.getStringExtra(EXTRA_CHANNEL_ID);
+            final byte[] salt = intent.getByteArrayExtra(EXTRA_SALT);
+            final String publicKey = intent.getStringExtra(EXTRA_PUBLIC_KEY);
 
-            if (null != pendingIntent)
-            {
+            mNotification.setChannelId(channelId);
+
+            if (null != pendingIntent) {
                 mNotification.setClientIntent(pendingIntent);
                 mPendingIntent = pendingIntent;
             } else if (null != mPendingIntent) {
@@ -1024,7 +1034,7 @@ public class DownloaderService extends CustomIntentService implements IDownloade
             // when the LVL check completes, a successful response will update
             // the service
             if (isLVLCheckRequired(db, mPackageInfo)) {
-                updateLVL(this, salt, publicKey);
+                updateLVL(this, channelId, salt, publicKey);
                 return;
             }
 
@@ -1081,7 +1091,7 @@ public class DownloaderService extends CustomIntentService implements IDownloade
                 switch (info.mStatus) {
                     case STATUS_FORBIDDEN:
                         // the URL is out of date
-                        updateLVL(this, salt, publicKey);
+                        updateLVL(this, channelId, salt, publicKey);
                         return;
                     case STATUS_SUCCESS:
                         mBytesSoFar += info.mCurrentBytes - startingCount;

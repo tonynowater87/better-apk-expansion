@@ -19,9 +19,9 @@ package com.google.android.vending.expansion.downloader.impl;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
-import android.os.Build;
 import android.support.annotation.StringRes;
 import android.support.v4.app.NotificationCompat;
+
 import com.android.vending.expansion.downloader.R;
 import com.google.android.vending.expansion.downloader.DownloadProgressInfo;
 import com.google.android.vending.expansion.downloader.Helpers;
@@ -51,7 +51,6 @@ class DownloadNotification {
     private NotificationCompat.Builder mCurrentBuilder;
     private CharSequence mLabel;
     private String mCurrentText;
-    private DownloadProgressInfo mProgressInfo;
     private PendingIntent mContentIntent;
 
     static final String LOGTAG = "DownloadNotification";
@@ -70,11 +69,7 @@ class DownloadNotification {
         mNotificationManager = (NotificationManager)
                 mContext.getSystemService(Context.NOTIFICATION_SERVICE);
         mClientProxy = new ClientProxy(ctx);
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-            mActiveDownloadBuilder = new V4CustomNotificationBuilder(ctx);
-        } else {
-            mActiveDownloadBuilder = new NotificationCompat.Builder(ctx);
-        }
+        mActiveDownloadBuilder = new NotificationCompat.Builder(ctx);
         mBuilder = new NotificationCompat.Builder(ctx);
 
         // Set Notification category and priorities to something that makes sense for a long
@@ -96,6 +91,11 @@ class DownloadNotification {
         this.mBuilder.setContentIntent(clientIntent);
         this.mActiveDownloadBuilder.setContentIntent(clientIntent);
         this.mContentIntent = clientIntent;
+    }
+
+    public void setChannelId(String channelId) {
+        this.mBuilder.setChannelId(channelId);
+        this.mActiveDownloadBuilder.setChannelId(channelId);
     }
 
     public void resendState() {
@@ -177,7 +177,6 @@ class DownloadNotification {
     }
 
     void onDownloadProgress(DownloadProgressInfo progress) {
-        mProgressInfo = progress;
         mClientProxy.onDownloadProgress(progress);
         if (progress.mOverallTotal <= 0) {
             // we just show the text
@@ -198,52 +197,6 @@ class DownloadNotification {
             mCurrentBuilder = mActiveDownloadBuilder;
         }
         mNotificationManager.notify(NOTIFICATION_ID, mCurrentBuilder.build());
-    }
-
-    /**
-     * Called in response to onClientUpdated. Creates a new proxy and notifies
-     * it of the current state.
-     *
-     * @param msg the client Messenger to notify
-     */
-    public void setMessenger(Messenger msg) {
-        mClientProxy = DownloaderClientMarshaller.CreateProxy(msg);
-        if (null != mProgressInfo) {
-            mClientProxy.onDownloadProgress(mProgressInfo);
-        }
-        if (mState != -1) {
-            mClientProxy.onDownloadStateChanged(mState);
-        }
-    }
-
-    /**
-     * Constructor
-     *
-     * @param ctx The context to use to obtain access to the Notification
-     *            Service
-     */
-    DownloadNotification(Context ctx, CharSequence applicationLabel) {
-        mState = -1;
-        mContext = ctx;
-        mLabel = applicationLabel;
-        mNotificationManager = (NotificationManager)
-                mContext.getSystemService(Context.NOTIFICATION_SERVICE);
-        mActiveDownloadBuilder = new NotificationCompat.Builder(ctx);
-        mBuilder = new NotificationCompat.Builder(ctx);
-
-        // Set Notification category and priorities to something that makes sense for a long
-        // lived background task.
-        mActiveDownloadBuilder.setPriority(NotificationCompat.PRIORITY_LOW);
-        mActiveDownloadBuilder.setCategory(NotificationCompat.CATEGORY_PROGRESS);
-
-        mBuilder.setPriority(NotificationCompat.PRIORITY_LOW);
-        mBuilder.setCategory(NotificationCompat.CATEGORY_PROGRESS);
-
-        mCurrentBuilder = mBuilder;
-    }
-
-    @Override
-    public void onServiceConnected(Messenger m) {
     }
 
 }
