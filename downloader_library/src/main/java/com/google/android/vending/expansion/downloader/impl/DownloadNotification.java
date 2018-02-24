@@ -113,6 +113,8 @@ class DownloadNotification {
             int iconResource;
             boolean ongoingEvent;
 
+            mBuilder.setPriority(NotificationCompat.PRIORITY_LOW);
+
             // get the new title string and paused text
             switch (newState) {
                 case 0:
@@ -137,6 +139,7 @@ class DownloadNotification {
                 case IDownloaderClient.STATE_COMPLETED:
                     // show notification without progress
                     mCurrentBuilder = mBuilder;
+                    mBuilder.setPriority(NotificationCompat.PRIORITY_MAX);
                 case IDownloaderClient.STATE_PAUSED_BY_REQUEST:
                     iconResource = android.R.drawable.stat_sys_download_done;
                     stringDownloadID = Helpers.getDownloaderStringResourceIDFromState(newState);
@@ -168,7 +171,9 @@ class DownloadNotification {
             mCurrentBuilder.setContentText(mCurrentText);
             if (ongoingEvent) {
                 mCurrentBuilder.setOngoing(true);
+                mCurrentBuilder.setOnlyAlertOnce(true);
             } else {
+                mCurrentBuilder.setOnlyAlertOnce(false);
                 mCurrentBuilder.setOngoing(false);
                 mCurrentBuilder.setAutoCancel(true);
             }
@@ -194,6 +199,7 @@ class DownloadNotification {
             mActiveDownloadBuilder.setContentInfo(mContext.getString(R.string.time_remaining_notification,
                     Helpers.getTimeRemaining(progress.mTimeRemaining)));
             mActiveDownloadBuilder.setOngoing(true);
+            mActiveDownloadBuilder.setOnlyAlertOnce(true);
             mCurrentBuilder = mActiveDownloadBuilder;
         }
         mNotificationManager.notify(NOTIFICATION_ID, mCurrentBuilder.build());
