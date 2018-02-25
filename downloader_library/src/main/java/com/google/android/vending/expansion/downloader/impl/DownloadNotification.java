@@ -19,9 +19,9 @@ package com.google.android.vending.expansion.downloader.impl;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
-import android.os.Build;
 import android.support.annotation.StringRes;
 import android.support.v4.app.NotificationCompat;
+
 import com.android.vending.expansion.downloader.R;
 import com.google.android.vending.expansion.downloader.DownloadProgressInfo;
 import com.google.android.vending.expansion.downloader.Helpers;
@@ -51,7 +51,6 @@ class DownloadNotification {
     private NotificationCompat.Builder mCurrentBuilder;
     private CharSequence mLabel;
     private String mCurrentText;
-    private DownloadProgressInfo mProgressInfo;
     private PendingIntent mContentIntent;
 
     static final String LOGTAG = "DownloadNotification";
@@ -70,11 +69,7 @@ class DownloadNotification {
         mNotificationManager = (NotificationManager)
                 mContext.getSystemService(Context.NOTIFICATION_SERVICE);
         mClientProxy = new ClientProxy(ctx);
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-            mActiveDownloadBuilder = new V4CustomNotificationBuilder(ctx);
-        } else {
-            mActiveDownloadBuilder = new NotificationCompat.Builder(ctx);
-        }
+        mActiveDownloadBuilder = new NotificationCompat.Builder(ctx);
         mBuilder = new NotificationCompat.Builder(ctx);
 
         // Set Notification category and priorities to something that makes sense for a long
@@ -98,6 +93,11 @@ class DownloadNotification {
         this.mContentIntent = clientIntent;
     }
 
+    public void setChannelId(String channelId) {
+        this.mBuilder.setChannelId(channelId);
+        this.mActiveDownloadBuilder.setChannelId(channelId);
+    }
+
     public void resendState() {
         mClientProxy.onDownloadStateChanged(mState);
     }
@@ -112,6 +112,8 @@ class DownloadNotification {
             @StringRes int stringDownloadID;
             int iconResource;
             boolean ongoingEvent;
+
+            mBuilder.setPriority(NotificationCompat.PRIORITY_LOW);
 
             // get the new title string and paused text
             switch (newState) {
@@ -137,6 +139,7 @@ class DownloadNotification {
                 case IDownloaderClient.STATE_COMPLETED:
                     // show notification without progress
                     mCurrentBuilder = mBuilder;
+                    mBuilder.setPriority(NotificationCompat.PRIORITY_MAX);
                 case IDownloaderClient.STATE_PAUSED_BY_REQUEST:
                     iconResource = android.R.drawable.stat_sys_download_done;
                     stringDownloadID = Helpers.getDownloaderStringResourceIDFromState(newState);
@@ -168,7 +171,9 @@ class DownloadNotification {
             mCurrentBuilder.setContentText(mCurrentText);
             if (ongoingEvent) {
                 mCurrentBuilder.setOngoing(true);
+                mCurrentBuilder.setOnlyAlertOnce(true);
             } else {
+                mCurrentBuilder.setOnlyAlertOnce(false);
                 mCurrentBuilder.setOngoing(false);
                 mCurrentBuilder.setAutoCancel(true);
             }
@@ -177,7 +182,6 @@ class DownloadNotification {
     }
 
     void onDownloadProgress(DownloadProgressInfo progress) {
-        mProgressInfo = progress;
         mClientProxy.onDownloadProgress(progress);
         if (progress.mOverallTotal <= 0) {
             // we just show the text
@@ -195,8 +199,10 @@ class DownloadNotification {
             mActiveDownloadBuilder.setContentInfo(mContext.getString(R.string.time_remaining_notification,
                     Helpers.getTimeRemaining(progress.mTimeRemaining)));
             mActiveDownloadBuilder.setOngoing(true);
+            mActiveDownloadBuilder.setOnlyAlertOnce(true);
             mCurrentBuilder = mActiveDownloadBuilder;
         }
         mNotificationManager.notify(NOTIFICATION_ID, mCurrentBuilder.build());
     }
+
 }

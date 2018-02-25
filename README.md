@@ -51,11 +51,12 @@ Starting the download using the Downloader Library requires the following proced
    * `getExpansionAPKFileName(Context, c, boolean mainFile, int versionCode)`
    * `doesFileExist(Context c, String fileName, long fileSize)`
 
-2. Start the download by calling the static method `DownloaderService.startDownloadServiceIfRequired(Context context, PendingIntent pendingIntent, byte[] salt, String publicKey)`.
+2. Start the download by calling the static method `DownloaderService.startDownloadServiceIfRequired(Context context, String channelId, PendingIntent pendingIntent, byte[] salt, String publicKey)`.
 
     The method takes the following parameters:
     * `context` - Your application's Context.
-    * `notificationClient` - A PendingIntent to start your main activity. This is used in the Notification that the DownloaderService creates to show the download progress. When the user selects the notification, the system invokes the PendingIntent you supply here and should open the activity that shows the download progress (usually the same activity that started the download).
+    * `channelId` - The Channel ID to use on Android Oreo and newer. You must create the Channel yourself.
+    * `pendingIntent` - A PendingIntent to start your main activity. This is used in the Notification that the DownloaderService creates to show the download progress. When the user selects the notification, the system invokes the PendingIntent you supply here and should open the activity that shows the download progress (usually the same activity that started the download).
     * `salt` - An array of random bytes that the licensing Policy uses to create an Obfuscator. The salt ensures that your obfuscated `SharedPreferences` file in which your licensing data is saved will be unique and non-discoverable.
     * `publicKey` - A string that is the Base64-encoded RSA public key for your publisher account, available from the profile page on the Play Console (see [Setting Up for Licensing](https://developer.android.com/google/play/licensing/setting-up.html)).
 
@@ -78,7 +79,7 @@ Starting the download using the Downloader Library requires the following proced
     public static final byte[] SALT = new byte[] { 1, 42, -12, -1, 54, 98,
              -100, -12, 43, 2, -8, -4, 9, 5, -106, -107, -33, 45, -1, 84
     };
- 
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         // Check if expansion files are available before going any further
@@ -90,10 +91,12 @@ Starting the download using the Downloader Library requires the following proced
             ...
             PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
                     notifierIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-    
+
             // Start the download service (if required)
+            // Don't forget to create the channel in advance!
             int startResult =
                 DownloaderService.startDownloadServiceIfRequired(this,
+                            "downloader-channel",
                             pendingIntent, SALT, BASE64_PUBLIC_KEY);
             // If download has started, initialize this activity to show
             // download progress
