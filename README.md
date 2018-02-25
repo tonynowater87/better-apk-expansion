@@ -24,7 +24,7 @@ download events user just have to extend `BroadcastDownloaderClient`.
 
 In your module's `build.gradle` dependencies:
 ```GROOVY
-compile 'com.github.bolein.better-apk-expansion:downloader_library:5.0.2'
+compile 'com.github.bolein.better-apk-expansion:downloader_library:5.0.3'
 ```
 
 In your root project's `build.gradle`:
@@ -250,35 +250,6 @@ allprojects {
 
 The complete documentation on the old Downloader Library is available at the Android Developers [website](https://developer.android.com/google/play/expansion-files.html#Overview). 
 
-## Changelog
-Version 5.0.0
-* Introduced updated API
-* Updated documentation
-
-Version 4.0.1
-* Fixed notification issues
-* Bug fixes
-
-Version 4
-* Updated for Marshmallow
-   - No longer uses Apache HTTP
-   - No longer relies on removed Notification methods
-* Changed to refer to Google Play
-* Notifications now rely on support library.
-
-Version 3
-* Directory structure corrected in distribution. No code changes.
-
-Version 2
-* Patch file now gets downloaded.
-* Honeycomb devices now supported with ICS-like notifications
-* CRC check (from sample) now supports compressed Zip files
-* Use of reflection removed to allow easy obfuscation
-* Service leak fixed
-* Unprintable character removed from ZipResourceFile
-* Minor formatting changes
-* Additional comments and edits to this file
-
 ## Packages
 
 ### downloader_library
@@ -288,6 +259,10 @@ A library that uses multiple zip files as a virtual read-only filesystem with ho
 ### downloader_sample
 A sample application that assumes that zip format files have been uploaded as the main/patch file(s) on Android Market.  It downloads these files and then validates that the CRC's for every entry in the zip match.  This application depends on the downloader_library and the zip_file library. Because of dependency issues involving multiple libraries, you may have to do a clean build after creating each project.
 
+## Dependencies
+
+This library depends on the [Android License Verification Library](https://github.com/bolein/better-licensing).
+
 ## IMPORTANT THINGS TO KNOW
 
 1) Do not plan to extract the contents of an APK Expansion file.  They are intended to be used in-place.  By not compressing audio and video files and storing them in a Zip file they can be played from within an expansion file.
@@ -296,7 +271,5 @@ A sample application that assumes that zip format files have been uploaded as th
 4) There is no strong need to include the validator with your Android applications.  It is included as a demonstration, and can be used if you wish.
 
 For more information, see the documentation at http://developer.android.com/guide/market/expansion-files.html
-
-This library depends on the [Android License Verification Library](https://github.com/bolein/better-licensing).
 
 See the licensing documentation at http://developer.android.com/guide/publishing/licensing.html
