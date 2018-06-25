@@ -672,7 +672,11 @@ public class DownloaderService extends CustomIntentService implements IDownloade
                 downloadIntent.putExtra(EXTRA_CHANNEL_ID, channelId);
                 downloadIntent.putExtra(EXTRA_SALT, salt);
                 downloadIntent.putExtra(EXTRA_PUBLIC_KEY, publicKey);
-                context.startService(downloadIntent);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    context.startForegroundService(downloadIntent);
+                } else {
+                    context.startService(downloadIntent);
+                }
                 break;
         }
         return status;
@@ -702,7 +706,11 @@ public class DownloaderService extends CustomIntentService implements IDownloade
         }
         Intent fileIntent = new Intent(this, this.getClass());
         fileIntent.putExtra(EXTRA_PENDING_INTENT, mPendingIntent);
-        this.startService(fileIntent);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            this.startForegroundService(fileIntent);
+        } else {
+            this.startService(fileIntent);
+        }
     }
 
     private class LVLRunnable implements Runnable {
@@ -972,7 +980,11 @@ public class DownloaderService extends CustomIntentService implements IDownloade
                 Intent fileIntent = new Intent(context, mService.getClass());
                 fileIntent.putExtra(EXTRA_PENDING_INTENT, mPendingIntent);
                 // send a new intent to the service
-                context.startService(fileIntent);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    context.startForegroundService(fileIntent);
+                } else {
+                    context.startService(fileIntent);
+                }
             }
         }
     }
