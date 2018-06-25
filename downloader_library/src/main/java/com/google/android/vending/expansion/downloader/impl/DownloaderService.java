@@ -911,7 +911,7 @@ public class DownloaderService extends CustomIntentService implements IDownloade
         return !Helpers.doesFileExist(this, filename, fileSize, true);
     }
 
-    private void scheduleAlarm(long wakeUp, boolean repeated, Bundle callerExtras) {
+    private void scheduleAlarm(long wakeUp, boolean repeated, Intent originalIntent) {
         AlarmManager alarms = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         if (alarms == null) {
             Log.e(Constants.TAG, "couldn't get alarm manager");
@@ -925,7 +925,7 @@ public class DownloaderService extends CustomIntentService implements IDownloade
         // put original extras to the wake up intent
         Intent intent = new Intent(this, AlarmReceiver.class);
         intent.setAction(Constants.ACTION_RETRY);
-        intent.putExtras(callerExtras);
+        intent.putExtras(originalIntent);
 
         mAlarmIntent = PendingIntent.getBroadcast(this, 0, intent,
                 PendingIntent.FLAG_CANCEL_CURRENT);
@@ -1081,7 +1081,7 @@ public class DownloaderService extends CustomIntentService implements IDownloade
                     DownloadThread dt = new DownloadThread(info, this, mNotification);
                     cancelAlarms();
                     // schedule repeated alarm to check if process is alive
-                    scheduleAlarm(Constants.ACTIVE_THREAD_WATCHDOG, true, intent.getExtras());
+                    scheduleAlarm(Constants.ACTIVE_THREAD_WATCHDOG, true, intent);
                     dt.run();
                     cancelAlarms();
                 }
@@ -1146,7 +1146,7 @@ public class DownloaderService extends CustomIntentService implements IDownloade
                         break;
                 }
                 if (setWakeWatchdog) {
-                    scheduleAlarm(Constants.WATCHDOG_WAKE_TIMER, false, intent.getExtras());
+                    scheduleAlarm(Constants.WATCHDOG_WAKE_TIMER, false, intent);
                 } else {
                     cancelAlarms();
                 }
