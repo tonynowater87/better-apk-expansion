@@ -38,6 +38,7 @@ import com.google.android.vending.expansion.downloader.IDownloaderClient;
  * The application interface for the downloader also needs to understand and
  * handle these transient states.
  */
+@SuppressWarnings("unused")
 class DownloadNotification {
 
     private int mState;

@@ -38,6 +38,7 @@ import java.util.regex.Pattern;
 /**
  * Some helper functions for the download manager
  */
+@SuppressWarnings("unused")
 public class Helpers {
 
     public static Random sRandom = new Random(SystemClock.uptimeMillis());

@@ -46,6 +46,7 @@ import java.io.File;
  * Note that Android by default will kill off any process that has an open file
  * handle on the shared (SD Card) partition if the partition is unmounted.
  */
+@SuppressWarnings("unused")
 public class DownloaderService extends CustomIntentService implements IDownloaderService {
 
     public DownloaderService() {
@@ -588,10 +589,7 @@ public class DownloaderService extends CustomIntentService implements IDownloade
     private static boolean isLVLCheckRequired(DownloadsDB db, PackageInfo pi) {
         // we need to update the LVL check and get a successful status to
         // proceed
-        if (db.mVersionCode != pi.versionCode) {
-            return true;
-        }
-        return false;
+        return db.mVersionCode != pi.versionCode;
     }
 
     /**
@@ -996,7 +994,7 @@ public class DownloaderService extends CustomIntentService implements IDownloade
         @Override
         public void onReceive(Context context, Intent intent) {
             try {
-                final PendingIntent pendingIntent = (PendingIntent) intent
+                final PendingIntent pendingIntent = intent
                         .getParcelableExtra(EXTRA_PENDING_INTENT);
 
                 startDownloadServiceIfRequired(
@@ -1339,10 +1337,7 @@ public class DownloaderService extends CustomIntentService implements IDownloade
         // the database automatically reads the metadata for version code
         // and download status when the instance is created
         DownloadsDB db = DownloadsDB.getDB(this);
-        if (db.mStatus == 0) {
-            return true;
-        }
-        return false;
+        return db.mStatus == 0;
     }
 
     @Override
