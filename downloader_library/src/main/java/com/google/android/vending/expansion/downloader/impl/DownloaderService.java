@@ -1041,6 +1041,10 @@ public class DownloaderService extends CustomIntentService implements IDownloade
                 return;
             }
 
+            // Critical to use on Android O (API 26+) or else service will be killed by ANR within 5 seconds!
+            // See here: https://stackoverflow.com/questions/44425584/context-startforegroundservice-did-not-then-call-service-startforeground
+            startForeground(mNotification.getNotificationId(), mNotification.buildCurrentNotification());
+
             // when the LVL check completes, a successful response will update
             // the service
             if (isLVLCheckRequired(db, mPackageInfo)) {

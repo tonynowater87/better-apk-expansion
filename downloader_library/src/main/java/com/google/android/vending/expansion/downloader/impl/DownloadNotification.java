@@ -16,6 +16,7 @@
 
 package com.google.android.vending.expansion.downloader.impl;
 
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -70,8 +71,9 @@ class DownloadNotification {
         mNotificationManager = (NotificationManager)
                 mContext.getSystemService(Context.NOTIFICATION_SERVICE);
         mClientProxy = new ClientProxy(ctx);
-        mActiveDownloadBuilder = new NotificationCompat.Builder(ctx);
-        mBuilder = new NotificationCompat.Builder(ctx);
+        // Passing empty string as a channel ID is just a hack against deprecation, channel ID will be set later.
+        mActiveDownloadBuilder = new NotificationCompat.Builder(ctx, "");
+        mBuilder = new NotificationCompat.Builder(ctx, "");
 
         // Set Notification category and priorities to something that makes sense for a long
         // lived background task.
@@ -87,6 +89,10 @@ class DownloadNotification {
     public PendingIntent getClientIntent() {
         return mContentIntent;
     }
+
+    public int getNotificationId() { return NOTIFICATION_ID; }
+
+    public Notification buildCurrentNotification() { return mCurrentBuilder.build(); }
 
     public void setClientIntent(PendingIntent clientIntent) {
         this.mBuilder.setContentIntent(clientIntent);
