@@ -36,5 +36,5 @@ artifacts {
 
 dependencies {
     api 'com.github.bolein:better-licensing:1.5.0'
-    implementation 'com.android.support:support-v4:27.0.2'
+    implementation 'com.android.support:support-v4:27.1.1'
 }
