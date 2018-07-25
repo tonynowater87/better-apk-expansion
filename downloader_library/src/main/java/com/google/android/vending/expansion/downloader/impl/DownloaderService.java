@@ -378,6 +378,13 @@ public class DownloaderService extends CustomIntentService implements IDownloade
      */
     private static boolean sIsRunning;
 
+    /**
+     * Service parameters
+     */
+    String mChannelId;
+    byte[] mSalt;
+    String mPublicKey;
+
     @Override
     public IBinder onBind(Intent paramIntent) {
         Log.d(Constants.TAG, "Service Bound");
@@ -704,6 +711,10 @@ public class DownloaderService extends CustomIntentService implements IDownloade
         }
         Intent fileIntent = new Intent(this, this.getClass());
         fileIntent.putExtra(EXTRA_PENDING_INTENT, mPendingIntent);
+        fileIntent.putExtra(EXTRA_CHANNEL_ID, mChannelId);
+        fileIntent.putExtra(EXTRA_SALT,  mSalt);
+        fileIntent.putExtra(EXTRA_PUBLIC_KEY, mPublicKey);
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             this.startForegroundService(fileIntent);
         } else {
@@ -972,11 +983,13 @@ public class DownloaderService extends CustomIntentService implements IDownloade
         @Override
         public void onReceive(Context context, Intent intent) {
             pollNetworkState();
-            if (mStateChanged
-                    && !isServiceRunning()) {
+            if (mStateChanged && !isServiceRunning()) {
                 Log.d(Constants.TAG, "InnerBroadcastReceiver Called");
                 Intent fileIntent = new Intent(context, mService.getClass());
                 fileIntent.putExtra(EXTRA_PENDING_INTENT, mPendingIntent);
+                fileIntent.putExtra(EXTRA_CHANNEL_ID, mChannelId);
+                fileIntent.putExtra(EXTRA_SALT,  mSalt);
+                fileIntent.putExtra(EXTRA_PUBLIC_KEY, mPublicKey);
                 // send a new intent to the service
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     context.startForegroundService(fileIntent);
@@ -1025,11 +1038,11 @@ public class DownloaderService extends CustomIntentService implements IDownloade
             // and download status when the instance is created
             DownloadsDB db = DownloadsDB.getDB(this);
             final PendingIntent pendingIntent = intent.getParcelableExtra(EXTRA_PENDING_INTENT);
-            final String channelId = intent.getStringExtra(EXTRA_CHANNEL_ID);
-            final byte[] salt = intent.getByteArrayExtra(EXTRA_SALT);
-            final String publicKey = intent.getStringExtra(EXTRA_PUBLIC_KEY);
+            mChannelId = intent.getStringExtra(EXTRA_CHANNEL_ID);
+            mSalt = intent.getByteArrayExtra(EXTRA_SALT);
+            mPublicKey = intent.getStringExtra(EXTRA_PUBLIC_KEY);
 
-            mNotification.setChannelId(channelId);
+            mNotification.setChannelId(mChannelId);
 
             if (null != pendingIntent) {
                 mNotification.setClientIntent(pendingIntent);
@@ -1048,7 +1061,7 @@ public class DownloaderService extends CustomIntentService implements IDownloade
             // when the LVL check completes, a successful response will update
             // the service
             if (isLVLCheckRequired(db, mPackageInfo)) {
-                updateLVL(this, channelId, salt, publicKey);
+                updateLVL(this, mChannelId, mSalt, mPublicKey);
                 return;
             }
 
@@ -1105,7 +1118,7 @@ public class DownloaderService extends CustomIntentService implements IDownloade
                 switch (info.mStatus) {
                     case STATUS_FORBIDDEN:
                         // the URL is out of date
-                        updateLVL(this, channelId, salt, publicKey);
+                        updateLVL(this, mChannelId, mSalt, mPublicKey);
                         return;
                     case STATUS_SUCCESS:
                         mBytesSoFar += info.mCurrentBytes - startingCount;
