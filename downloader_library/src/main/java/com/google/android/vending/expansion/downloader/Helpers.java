@@ -224,13 +224,18 @@ public class Helpers {
         // This technically existed since Honeycomb, but it is critical
         // on KitKat and greater versions since it will create the
         // directory if needed
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            return c.getObbDir().toString();
-        } else {
-            File root = Environment.getExternalStorageDirectory();
-            String path = root.toString() + Constants.EXP_PATH + c.getPackageName();
-            return path;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
+        {
+            final File obbDir = c.getObbDir();
+
+            if (obbDir != null ) // It really can return null in some cases. So, if it's null - go to old fallback mechanism...
+            {
+                return obbDir.toString();
+            }
         }
+
+        File root = Environment.getExternalStorageDirectory();
+        return root.toString() + Constants.EXP_PATH + c.getPackageName();
     }
 
     /**
