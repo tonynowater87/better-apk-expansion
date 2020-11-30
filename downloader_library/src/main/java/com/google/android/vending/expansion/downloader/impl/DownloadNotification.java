@@ -17,9 +17,12 @@
 package com.google.android.vending.expansion.downloader.impl;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.StringRes;
 import android.support.v4.app.NotificationCompat;
 
@@ -27,6 +30,9 @@ import com.android.vending.expansion.downloader.R;
 import com.google.android.vending.expansion.downloader.DownloadProgressInfo;
 import com.google.android.vending.expansion.downloader.Helpers;
 import com.google.android.vending.expansion.downloader.IDownloaderClient;
+
+import static android.content.Context.NOTIFICATION_SERVICE;
+import static android.support.v4.app.NotificationCompat.VISIBILITY_PUBLIC;
 
 /**
  * This class handles displaying the notification associated with the download
@@ -69,7 +75,7 @@ class DownloadNotification {
         mContext = ctx;
         mLabel = applicationLabel;
         mNotificationManager = (NotificationManager)
-                mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+                mContext.getSystemService(NOTIFICATION_SERVICE);
         mClientProxy = new ClientProxy(ctx);
         // Passing empty string as a channel ID is just a hack against deprecation, channel ID will be set later.
         mActiveDownloadBuilder = new NotificationCompat.Builder(ctx, "");
@@ -212,4 +218,13 @@ class DownloadNotification {
         mNotificationManager.notify(NOTIFICATION_ID, mCurrentBuilder.build());
     }
 
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private void createNotificationChannel(String channelId) {
+        String channelName = "Downloader Service";
+        NotificationChannel notificationChannel = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_NONE);
+        notificationChannel.setLockscreenVisibility(VISIBILITY_PUBLIC);
+        NotificationManager notificationManager = (NotificationManager) mContext.getSystemService(NOTIFICATION_SERVICE);
+        notificationManager.createNotificationChannel(notificationChannel);
+    }
 }
