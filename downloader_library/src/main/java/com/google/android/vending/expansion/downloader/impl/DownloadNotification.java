@@ -111,6 +111,11 @@ class DownloadNotification {
         this.mActiveDownloadBuilder.setChannelId(channelId);
     }
 
+    /** @return {@link IDownloaderClient} */
+    public int getState() {
+        return mState;
+    }
+
     public void resendState() {
         mClientProxy.onDownloadStateChanged(mState);
     }

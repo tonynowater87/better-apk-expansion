@@ -1185,6 +1185,11 @@ public class DownloaderService extends CustomIntentService implements IDownloade
             // all downloads complete
             mNotification.onDownloadStateChanged(IDownloaderClient.STATE_COMPLETED);
         } finally {
+            if (mNotification.getState() == IDownloaderClient.STATE_COMPLETED) {
+                // Stop service after all downloads complete
+                stopForeground(true);
+                stopSelf();
+            }
             setServiceRunning(false);
         }
     }
