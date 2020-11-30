@@ -230,12 +230,16 @@ public class Helpers {
 
             if (obbDir != null ) // It really can return null in some cases. So, if it's null - go to old fallback mechanism...
             {
+                Log.d("[DEBUG]", "getSaveFilePath by getObbDir: " + obbDir.toString());
                 return obbDir.toString();
             }
         }
 
         File root = Environment.getExternalStorageDirectory();
-        return root.toString() + Constants.EXP_PATH + c.getPackageName();
+        String obbDirPath = root.toString() + Constants.EXP_PATH + c.getPackageName();
+        Log.d("[DEBUG]",
+                "getSaveFilePath by Environment.getExternalStorageDirectory(): " + obbDirPath);
+        return obbDirPath;
     }
 
     /**
@@ -296,7 +300,7 @@ public class Helpers {
     /**
      * Helper function to ascertain whether the application has the correct access to the OBB
      * directory to allow an OBB file to be written.
-     * 
+     *
      * @param c the app/activity/service context
      * @return true if the application can write an OBB file, false otherwise
      */
@@ -316,7 +320,7 @@ public class Helpers {
      * Converts download states that are returned by the
      * {@link IDownloaderClient#onDownloadStateChanged} callback into usable strings. This is useful
      * if using the state strings built into the library to display user messages.
-     * 
+     *
      * @param state One of the STATE_* constants from {@link IDownloaderClient}.
      * @return string resource ID for the corresponding string.
      */

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.android.vending.expansion.downloader">
 
     <!-- Required to access Google Play Licensing -->
@@ -14,26 +15,24 @@
 
     <!-- Required to poll the state of the network connection
         and respond to changes -->
-    <uses-permission
-        android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <!-- Required to check whether Wi-Fi is enabled -->
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
-
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
     <!-- Required to read and write the expansion files on shared storage -->
-    <uses-permission
-        android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission
-        android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
-    <application>
+    <application
+        android:requestLegacyExternalStorage="true"
+        tools:targetApi="q">
         <service
             android:name="com.google.android.vending.expansion.downloader.impl.DownloaderService"
-            android:enabled="true"/>
+            android:enabled="true" />
 
         <receiver
             android:name="com.google.android.vending.expansion.downloader.impl.DownloaderService$AlarmReceiver"
-            android:enabled="true"/>
+            android:enabled="true" />
     </application>
 </manifest>
